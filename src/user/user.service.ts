@@ -111,6 +111,91 @@ export class UserService {
     }
   }
 
+  async getAllUser() {
+    const connection = getConnection();
+    const queryRunner = connection.createQueryRunner();
+    await queryRunner.startTransaction();
+    try {
+      const getUser = await queryRunner.manager.find(UserDetail);
+
+      await queryRunner.commitTransaction();
+
+      return getUser;
+    } catch (error) {
+      console.log(error);
+      await queryRunner.rollbackTransaction();
+      return {
+        ok: false,
+        message: 'Error creating user',
+        error: error.message,
+      };
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async updateUser({ id, firstName, lastName }) {
+    const connection = getConnection();
+    const queryRunner = connection.createQueryRunner();
+    await queryRunner.startTransaction();
+    try {
+      const userDetail = new UserDetail();
+
+      if (firstName) {
+        userDetail.first_name = firstName;
+      }
+
+      if (lastName) {
+        userDetail.last_name = lastName;
+      }
+
+      await queryRunner.manager.update(UserDetail, id, userDetail);
+
+      await queryRunner.commitTransaction();
+
+      return {
+        ok: true,
+        message: 'User updated successfully',
+      };
+    } catch (error) {
+      console.log(error);
+      await queryRunner.rollbackTransaction();
+      return {
+        ok: false,
+        message: 'Error creating user',
+        error: error.message,
+      };
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async deleteUser({ id }) {
+    const connection = getConnection();
+    const queryRunner = connection.createQueryRunner();
+    await queryRunner.startTransaction();
+    try {
+      await queryRunner.manager.delete(UserDetail, id);
+
+      await queryRunner.commitTransaction();
+
+      return {
+        ok: true,
+        message: 'User deleted successfully',
+      };
+    } catch (error) {
+      console.log(error);
+      await queryRunner.rollbackTransaction();
+      return {
+        ok: false,
+        message: 'Error creating user',
+        error: error.message,
+      };
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
   static async toHash(password: string) {
     const salt = randomBytes(8).toString('hex');
     const buf = (await scryptAsync(password, salt, 64)) as Buffer;

@@ -1,9 +1,10 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Put, Res } from '@nestjs/common';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UserService } from './user.service';
 import * as jwt from 'jsonwebtoken';
 import { Response } from 'express';
 import { SignInDto } from './dtos/signin.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -56,5 +57,20 @@ export class UserController {
       message: 'User signed in successfully',
       data: result.data,
     });
+  }
+
+  @Get('all-user')
+  async getAllUser() {
+    return await this.userService.getAllUser();
+  }
+
+  @Put('update-user')
+  async updateUser(@Body() updateUserDto: UpdateUserDto) {
+    return await this.userService.updateUser(updateUserDto);
+  }
+
+  @Delete('delete-user')
+  async deleteUser(@Body() deleteUserDto: UpdateUserDto) {
+    return await this.userService.deleteUser(deleteUserDto);
   }
 }
